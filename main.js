@@ -47,6 +47,7 @@ let stepCount = 0;        // 16 分步进计数（0..63 循环 = 4 小节）
 const SFX_SAMPLE_SETS = Object.freeze({
   dagou: Object.freeze({ da: 'da', gou: 'gou', jiao: 'jiao' }),
   hajimi: Object.freeze({ da: 'ha', gou: 'ji', jiao: 'mi' }),
+  guga: Object.freeze({ da: 'gu1', gou: 'gu2', jiao: 'gu3' }),
   dingdong: Object.freeze({
     da: 'dingdongji_ding',
     gou: 'dingdongji_dong',
@@ -68,6 +69,11 @@ const CHARACTER_IMAGE_SETS = Object.freeze({
     close: 'Image/maodie_close_mouth.png',
     open: 'Image/maodie_open_mouth.png',
     alt: '哈基米',
+  }),
+  guga: Object.freeze({
+    close: 'Image/gu.png',
+    open: 'Image/ga.png',
+    alt: '咕嘎',
   }),
 });
 const HAJIMI_ATLAS_URL =
@@ -127,6 +133,13 @@ const SUSTAIN_REGIONS = {
     regionStart: 0.120, regionEnd: 0.310,
     frame: 0.100, overlap: 0.050, search: 0.012,
     wrapBlend: 0.040, textureDuration: 11.83, seed: 0.53,
+    preferFrameEntry: true,
+  },
+  gu3: {
+    enabled: true,
+    regionStart: 0.125, regionEnd: 0.290,
+    frame: 0.100, overlap: 0.050, search: 0.012,
+    wrapBlend: 0.040, textureDuration: 12.37, seed: 0.37,
     preferFrameEntry: true,
   },
 };
@@ -1111,7 +1124,9 @@ function selectSfxOption(option) {
   dogCloseImage.src = characterImages.close;
   dogCloseImage.alt = characterImages.alt;
   dogOpenImage.src = characterImages.open;
-  dogInner.classList.toggle('is-hajimi', selectedSfxId === 'hajimi');
+  for (const sfxId of Object.keys(CHARACTER_IMAGE_SETS)) {
+    dogInner.classList.toggle(`is-${sfxId}`, selectedSfxId === sfxId);
+  }
   for (const other of sfxOptions) {
     const selected = other === option;
     other.classList.toggle('is-active', selected);
@@ -1411,6 +1426,9 @@ const BARK_SOURCE_MIDI = Object.freeze({
   dingdongji_ding: 68.72369809072657,
   dingdongji_dong: 68.20736701647688,
   dingdongji_ji: 69.48535473104747,
+  gu1: 78.8960746351993,
+  gu2: 78.64409204918988,
+  gu3: 77.63923029375124,
 });
 
 // ha_new 的 A5 跨度较大；普通模式使用全四档复测后的 minimax 补偿锚点。
@@ -1451,6 +1469,9 @@ const BARK_TARGET_MIDI = Object.freeze({
   dingdongji_ding: Object.freeze([74, 72, 69, 67]), // D5, C5, A4, G4
   dingdongji_dong: Object.freeze([74, 72, 69, 67]), // D5, C5, A4, G4
   dingdongji_ji: Object.freeze([74, 72, 69, 67]),   // D5, C5, A4, G4
+  gu1: Object.freeze([86, 84, 81, 79]),   // D6, C6, A5, G5
+  gu2: Object.freeze([86, 84, 81, 79]),   // D6, C6, A5, G5
+  gu3: Object.freeze([86, 84, 81, 79]),   // D6, C6, A5, G5
 });
 
 // 20 ms 有声帧门限 RMS，以 da.wav 为响度基准。Web Audio 使用浮点链路，
@@ -1465,6 +1486,9 @@ const SFX_SAMPLE_GAIN = Object.freeze({
   dingdongji_ding: 2.5889190244772604,
   dingdongji_dong: 2.3637451111911507,
   dingdongji_ji: 2.3501763429894065,
+  gu1: 2.802931396541984,
+  gu2: 2.8774834719536795,
+  gu3: 3.096522762620143,
 });
 
 // 钢琴模式按起始八度动态生成 C 大调白键；第八键以高音 C 闭合完整八度。
@@ -2104,7 +2128,8 @@ function isRetunableSustainVoice(voice) {
     (
       voice.name === 'jiao' ||
       voice.name === 'mi' ||
-      voice.name === 'dingdongji_ji'
+      voice.name === 'dingdongji_ji' ||
+      voice.name === 'gu3'
     ) &&
     voice.mode === 'sustain' &&
     voice.held &&

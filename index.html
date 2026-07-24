@@ -271,6 +271,44 @@
   #dog-inner.is-hajimi.bark-image #dog-close { visibility: hidden; }
   #dog-inner.is-hajimi.bark-image #dog-open { visibility: visible; }
 
+  /* 咕嘎两张图构图比例不同：用稳定居中容器互斥切图，避免张嘴图叠到闭嘴图上。 */
+  #dog-inner.is-guga {
+    width: calc(var(--scene-unit) * .52);
+    height: calc(var(--scene-unit) * 1.02);
+  }
+  #dog-inner.is-guga #dog-jelly {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #dog-inner.is-guga img {
+    width: auto;
+    max-width: 160%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  #dog-inner.is-guga #dog-open {
+    position: static;
+    left: auto;
+    top: auto;
+    opacity: 1;
+    visibility: hidden;
+    display: none;
+    transition: none;
+  }
+  #dog-inner.is-guga #dog-close {
+    display: block;
+    visibility: visible;
+  }
+  #dog-inner.is-guga.bark-image #dog-close {
+    display: none;
+  }
+  #dog-inner.is-guga.bark-image #dog-open {
+    display: block;
+    visibility: visible;
+  }
+
   /* 东海帝皇由 Web Audio 时钟驱动透明画布；图集为无损高分辨率帧，
      画布只负责显示当前节拍对应帧，并使用独立柔和阴影避免缩放后的硬边。 */
   #dog-inner #dog-animation {
@@ -1445,6 +1483,10 @@
                   <img id="hajimi-option-image" src="Image/maodie_close_mouth.png" alt="" draggable="false" />
                 </span>
                 <span class="sfx-name">哈基米</span>
+              </button>
+              <button class="sfx-option" type="button" role="radio" aria-checked="false" data-sfx="guga">
+                <span class="sfx-icon"><img src="Image/gu.png" alt="" draggable="false" /></span>
+                <span class="sfx-name">咕嘎</span>
               </button>
             </div>
             <div class="skin-switcher is-open" id="hajimi-skin-switcher" aria-hidden="false">

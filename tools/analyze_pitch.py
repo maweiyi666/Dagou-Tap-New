@@ -32,6 +32,7 @@ A4_HZ = 440.0
 SFX_SAMPLE_SETS = {
     "dagou": ("da", "gou", "jiao"),
     "hajimi": ("ha", "ji", "mi"),
+    "guga": ("gu1", "gu2", "gu3"),
     "dingdong": ("dingdongji_ding", "dingdongji_dong", "dingdongji_ji"),
 }
 SAMPLE_NAMES = tuple(
@@ -57,6 +58,9 @@ FIXED_TARGET_MIDI = {
     "ha": (81, 79, 76, 72),    # A5, G5, E5, C5
     "ji": (74, 72, 69, 67),    # D5, C5, A4, G4
     "mi": (72, 69, 67, 64),    # C5, A4, G4, E4
+    "gu1": (86, 84, 81, 79),   # D6, C6, A5, G5
+    "gu2": (86, 84, 81, 79),   # D6, C6, A5, G5
+    "gu3": (86, 84, 81, 79),   # D6, C6, A5, G5
     "dingdongji_ding": (74, 72, 69, 67),  # D5, C5, A4, G4
     "dingdongji_dong": (74, 72, 69, 67),  # D5, C5, A4, G4
     "dingdongji_ji": (74, 72, 69, 67),    # D5, C5, A4, G4
@@ -100,6 +104,17 @@ SUSTAIN_REGION_CONFIG = {
         "wrapBlend": 0.028,
         "textureDuration": 12.11,
         "seed": 0.29,
+        "preferFrameEntry": True,
+    },
+    "gu3": {
+        "regionStart": 0.125,
+        "regionEnd": 0.290,
+        "frame": 0.100,
+        "overlap": 0.050,
+        "search": 0.012,
+        "wrapBlend": 0.040,
+        "textureDuration": 12.37,
+        "seed": 0.37,
         "preferFrameEntry": True,
     }
 }

@@ -18,6 +18,7 @@ const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
 const sampleNames = [
   'da', 'gou', 'jiao',
   'ha', 'ji', 'mi',
+  'gu1', 'gu2', 'gu3',
   'dingdongji_ding', 'dingdongji_dong', 'dingdongji_ji',
 ];
 const runtimeSampleFiles = {
@@ -27,6 +28,9 @@ const runtimeSampleFiles = {
   ha: 'ha_new.wav',
   ji: 'ji_new.wav',
   mi: 'mi_new.wav',
+  gu1: 'gu1.wav',
+  gu2: 'gu2.wav',
+  gu3: 'gu3.wav',
   dingdongji_ding: 'dingdongji_ding.wav',
   dingdongji_dong: 'dingdongji_dong.wav',
   dingdongji_ji: 'dingdongji_ji.wav',
@@ -166,30 +170,33 @@ vm.runInNewContext(
 const { mappingApi } = sandbox;
 const expectedSfxSamples = {
   hajimi: { da: 'ha', gou: 'ji', jiao: 'mi' },
+  guga: { da: 'gu1', gou: 'gu2', jiao: 'gu3' },
   dingdong: {
     da: 'dingdongji_ding',
     gou: 'dingdongji_dong',
     jiao: 'dingdongji_ji',
   },
 };
-const analysedMiSustain = report.sustain_regions?.mi;
-if (!analysedMiSustain?.config) {
-  throw new Error('Pitch analyzer report is missing the mi sustain-region audit');
-}
-for (const [key, expected] of Object.entries(analysedMiSustain.config)) {
-  if (mappingApi.sustainRegions.mi?.[key] !== expected) {
-    throw new Error(
-      `mi sustain ${key}: expected ${expected}, got ` +
-      `${mappingApi.sustainRegions.mi?.[key]}`,
-    );
+for (const sample of ['mi', 'gu3']) {
+  const analysedSustain = report.sustain_regions?.[sample];
+  if (!analysedSustain?.config) {
+    throw new Error(`Pitch analyzer report is missing the ${sample} sustain-region audit`);
   }
-}
-if (
-  analysedMiSustain.pitch_span_cents > 30 ||
-  analysedMiSustain.rms_span_db > 4 ||
-  analysedMiSustain.minimum_confidence < 0.8
-) {
-  throw new Error('mi sustain region is not stable enough for WSOLA looping');
+  for (const [key, expected] of Object.entries(analysedSustain.config)) {
+    if (mappingApi.sustainRegions[sample]?.[key] !== expected) {
+      throw new Error(
+        `${sample} sustain ${key}: expected ${expected}, got ` +
+        `${mappingApi.sustainRegions[sample]?.[key]}`,
+      );
+    }
+  }
+  if (
+    analysedSustain.pitch_span_cents > 30 ||
+    analysedSustain.rms_span_db > 4 ||
+    analysedSustain.minimum_confidence < 0.8
+  ) {
+    throw new Error(`${sample} sustain region is not stable enough for WSOLA looping`);
+  }
 }
 for (const [sfxId, expectedSamples] of Object.entries(expectedSfxSamples)) {
   for (const [semanticSample, audioSample] of Object.entries(expectedSamples)) {
@@ -226,8 +233,8 @@ for (const sample of sampleNames) {
 }
 
 let checked = 0;
-if (!Array.isArray(report.mappings) || report.mappings.length !== 36) {
-  throw new Error('Pitch analyzer report must contain all 36 normal sample/tier mappings');
+if (!Array.isArray(report.mappings) || report.mappings.length !== 48) {
+  throw new Error('Pitch analyzer report must contain all 48 normal sample/tier mappings');
 }
 for (const mapping of report.mappings) {
   const actualRate = mappingApi.barkPlaybackRate(
@@ -327,8 +334,8 @@ const pianoOctaveStarts = [3, 4, 5, 6];
 const pianoIntervals = [0, 2, 4, 5, 7, 9, 11, 12];
 const pianoMidiForOctave = octave =>
   pianoIntervals.map(interval => (octave + 1) * 12 + interval);
-if (!Array.isArray(report.piano_mappings) || report.piano_mappings.length !== 288) {
-  throw new Error('Pitch analyzer report must contain all 288 piano sample/key mappings');
+if (!Array.isArray(report.piano_mappings) || report.piano_mappings.length !== 384) {
+  throw new Error('Pitch analyzer report must contain all 384 piano sample/key mappings');
 }
 for (const mapping of report.piano_mappings) {
   const pianoMidi = pianoMidiForOctave(mapping.octave_start);
@@ -453,7 +460,7 @@ if (
 
 console.log(`Runtime fixed pitch mapping verified: ${checked} sample/tier keys`);
 console.log('SFX routing verified: Hajimi and Dingdong replace all three samples');
-console.log('Embedded audio verified: all nine runtime WAV files are present');
+console.log('Embedded audio verified: all twelve runtime WAV files are present');
 console.log(
   `Hajimi mi sustain verified: ` +
   `${analysedMiSustain.pitch_span_cents.toFixed(3)} cents pitch span, ` +
